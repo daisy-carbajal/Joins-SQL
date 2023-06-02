@@ -73,9 +73,25 @@ JOIN customer c ON o.customer_id = c.customer_id
 WHERE os.status_value = 'Returned';
 
 --Mostrar la cantidad de libros y el titulo del libro que se han entregado satisfactoriamente
-
+SELECT COUNT(DISTINCT b.book_id) AS book_count, b.title
+FROM book b
+JOIN order_line ol ON b.book_id = ol.book_id
+JOIN cust_order o ON ol.order_id = o.order_id
+JOIN order_history oh ON o.order_id = oh.order_id
+JOIN order_status os ON oh.status_id = os.status_id
+WHERE os.status_value = 'Delivered'
+GROUP BY b.book_id, b.title;
 
 --Mostrar la lista de los clientes mas frecuentes
-
+SELECT c.customer_id, c.first_name, c.last_name, COUNT(*) AS order_count
+FROM customer c
+JOIN cust_order o ON c.customer_id = o.customer_id
+GROUP BY c.customer_id, c.first_name, c.last_name
+ORDER BY order_count DESC;
 
 --Mostrar el mes en el que mas pedidos de libros se realizan
+SELECT TOP (1) MONTH(o.order_date) AS month, COUNT(*) AS book_count
+FROM cust_order o
+JOIN order_line ol ON o.order_id = ol.order_id
+GROUP BY MONTH(o.order_date)
+ORDER BY book_count DESC;
